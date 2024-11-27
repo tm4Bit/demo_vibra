@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 30px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.row p {
+  color: #808080;
+}
+
+.active p {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.active div {
+  background-color: var(--primary);
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #a7d9b2;
+  font-size: 0.8rem;
+  color: white;
+  border-radius: 99999px;
+}
+
+.divider {
+  height: 15px;
+  width: 1px;
+  background-color: #bfbfbf;
+  margin-left: 12px;
+}

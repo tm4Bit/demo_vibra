@@ -1,0 +1,55 @@
+.container {
+  padding: 24px 0 80px;
+}
+
+.title {
+  color: #00773c;
+  font-size: 2.4rem;
+  margin: 10px 0;
+
+  @media (max-width: 400px) {
+    font-size: 1.6rem;
+  }
+}
+
+.row {
+  padding: 0 30px;
+}
+
+.banner {
+  width: 100%;
+  margin: 8px 0 24px;
+}
+
+.banner img {
+  display: block;
+  width: 100%;
+}
+
+.pitch {
+  margin-bottom: 24px;
+}
+
+.pitch h4 {
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.actionContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #dddddd;
+  background-color: white;
+  width: 100%;
+  padding: 12px 20px;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}
+
+.actionContainer button {
+  background-color: var(--primary);
+  padding: 16px 48px;
+  color: white;
+}
