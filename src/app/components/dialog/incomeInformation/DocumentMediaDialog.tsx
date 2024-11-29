@@ -1,18 +1,21 @@
 import { useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { InputMask } from "@react-input/mask";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+import { useFormContext } from "@/app/hooks/useFormContext";
+
+import { InputError } from "../../InputError";
 import { CustomDialog } from "../../dialog/Dialog";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
-import { useForm } from "react-hook-form";
-import { useFormContext } from "@/app/hooks/useFormContext";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { MdErrorOutline } from "react-icons/md";
-import { z } from "zod";
 
 interface Props {
   gotoNext: (n: number) => void;
 }
 
-const DocumentMediaSchema = z.object({
+const IncomeMediaFormSchema = z.object({
   incomeDocument: z
     .any()
     .refine(
@@ -29,12 +32,12 @@ const DocumentMediaSchema = z.object({
     ),
   incomeDocumentType: z.enum(
     [
-      "Contracheque",
+      "Demonstrativo de rendimentos",
+      "DECORE",
       "DIRF",
       "Declaração de IR",
       "Comprovante de Rendimentos Pagos",
-      "Extrato INSS",
-      "Aviso de Crédito à Pesquisador/Bolsista",
+      "Extrato pagamento do INSS",
     ],
     {
       errorMap: (issue, _ctx) => {
@@ -47,20 +50,20 @@ const DocumentMediaSchema = z.object({
   income: z.string().min(1, "Informe o seu rendimento mensal"),
 });
 
-export type DocumentMediaFormData = z.infer<typeof DocumentMediaSchema>;
+export type IncomeMediaFormData = z.infer<typeof IncomeMediaFormSchema>;
 
 export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
-  const { formData, updateFormData } = useFormContext();
+  const { updateFormData } = useFormContext();
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<DocumentMediaFormData>({
-    resolver: zodResolver(DocumentMediaSchema),
+  } = useForm<IncomeMediaFormData>({
+    resolver: zodResolver(IncomeMediaFormSchema),
   });
+
   const handleContinue = useCallback(
-    (data: DocumentMediaFormData) => {
-      // NOTE: Validate form and save in localstorage
+    (data: IncomeMediaFormData) => {
       if (isValid) {
         updateFormData({ documentMedia: data }, "income");
         gotoNext(2);
@@ -69,19 +72,23 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
     [isValid]
   );
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let value = event.target.value.replace(/\D/g, "");
+    if (value.length > 2) {
+      value = value.replace(/(\d{2})$/, ",$1");
+    }
+    if (value.length > 5) {
+      value = value.replace(/(\d{3})(?=\d{2,})/, "$1.");
+    }
+  };
+
   return (
     <CustomDialog title="" triggerText="Começar" isOpen={true}>
       <form onSubmit={handleSubmit(handleContinue)}>
         <div className={styles.row}>
           <label>Enviar foto do comprovante de renda</label>
           <input type="file" {...register("incomeDocument")} />
-
-          {errors.incomeDocument && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.incomeDocument?.message?.toString()}</span>
-            </span>
-          )}
+          <InputError message={errors.incomeDocument?.message?.toString()} />
         </div>
 
         <div className={styles.row}>
@@ -103,25 +110,25 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
               DECORE
             </option>
           </select>
-
-          {errors.incomeDocumentType && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.incomeDocumentType.message}</span>
-            </span>
-          )}
+          <InputError
+            message={errors.incomeDocumentType?.message?.toString()}
+          />
         </div>
 
         <div className={styles.row}>
           <label>Informe o seu rendimento mensal</label>
-          <input type="text" placeholder="R$" {...register("income")} />
-
-          {errors.income && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.income.message}</span>
-            </span>
-          )}
+          <InputMask
+            mask="R$ 999.999,99"
+            replacement={{ 9: /\d/ }}
+            {...register("income")}
+            onChange={handleChange}
+          />
+          {/* <InputMask
+            mask="R$ 999.999,99"
+            replacement={{ 9: /\d/ }}
+            {...register("income")}
+          /> */}
+          <InputError message={errors.income?.message?.toString()} />
         </div>
         <div className={styles.actionContainer}>
           <button type="submit" className={styles.submitButton}>

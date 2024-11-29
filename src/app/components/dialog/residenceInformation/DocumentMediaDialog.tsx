@@ -1,12 +1,14 @@
 import { useCallback } from "react";
-import { CustomDialog } from "../../dialog/Dialog";
-
-import styles from "@/app/styles/components/dialog/styles.module.css";
-import { useFormContext } from "@/app/hooks/useFormContext";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { MdErrorOutline } from "react-icons/md";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useFormContext } from "@/app/hooks/useFormContext";
+
+import { CustomDialog } from "../../dialog/Dialog";
+import { InputError } from "../../InputError";
+
+import styles from "@/app/styles/components/dialog/styles.module.css";
 
 const MAX_FILE_SIZE = 5000000; // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -32,12 +34,12 @@ const fileSchema = z
     "Apenas formatos .jpg, .jpeg, .png and .webp são suportados!"
   );
 
-const DocumentMediaSchema = z.object({
+const ResidenceMediaSchema = z.object({
   frontDocumentImage: fileSchema,
   backDocumentImage: fileSchema,
 });
 
-export type DocumentMediaFormData = z.infer<typeof DocumentMediaSchema>;
+export type ResidenceMediaFormData = z.infer<typeof ResidenceMediaSchema>;
 
 export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
   const { updateFormData } = useFormContext();
@@ -45,12 +47,12 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<DocumentMediaFormData>({
-    resolver: zodResolver(DocumentMediaSchema),
+  } = useForm<ResidenceMediaFormData>({
+    resolver: zodResolver(ResidenceMediaSchema),
   });
+
   const handleContinue = useCallback(
-    (data: DocumentMediaFormData) => {
-      // NOTE: Validate form and save in localstorage
+    (data: ResidenceMediaFormData) => {
       if (isValid) {
         updateFormData({ documentMedia: data }, "residence");
         gotoNext(2);
@@ -69,22 +71,14 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
         <div className={styles.row}>
           <label>Frente do comprovante</label>
           <input type="file" {...register("frontDocumentImage")} />
-          {errors.frontDocumentImage && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.frontDocumentImage?.message?.toString()}</span>
-            </span>
-          )}
+          <InputError
+            message={errors.frontDocumentImage?.message?.toString()}
+          />
         </div>
         <div className={styles.row}>
           <label>Verso do comprovante</label>
           <input type="file" {...register("backDocumentImage")} />
-          {errors.backDocumentImage && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.backDocumentImage?.message?.toString()}</span>
-            </span>
-          )}
+          <InputError message={errors.backDocumentImage?.message?.toString()} />
         </div>
         <div className={styles.actionContainer}>
           <button type="submit" className={styles.submitButton}>

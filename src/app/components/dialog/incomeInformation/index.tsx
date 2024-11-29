@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+
 import { CustomDialog } from "../../dialog/Dialog";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
@@ -9,7 +10,6 @@ interface Props {
 
 export const InstructionsDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(() => {
-    // NOTE: Validate form and save in localstorage
     gotoNext(1);
   }, []);
 

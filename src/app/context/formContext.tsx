@@ -6,8 +6,12 @@ import { isEmpty } from "lodash";
 import { PersonalInfoFormData } from "../components/dialog/personalInformation";
 import { DigitalInfoFormData } from "../components/dialog/personalInformation/DigitalInformationDialog";
 import { AdditionalInfoFormData } from "../components/dialog/personalInformation/AdditionalInformationDialog";
-import { DocumentInfoFormData } from "../components/dialog/identityInformation";
-import { DocumentMediaFormData } from "../components/dialog/identityInformation/DocumentMediaDialog";
+import { IdentityInfoFormData } from "../components/dialog/identityInformation";
+import { IdentityMediaFormData } from "../components/dialog/identityInformation/DocumentMediaDialog";
+import { ResidenceInfoFormData } from "../components/dialog/residenceInformation/ResidenceInformationDialog";
+import { ResidenceMediaFormData } from "../components/dialog/residenceInformation/DocumentMediaDialog";
+import { IncomeInformationFormData } from "../components/dialog/incomeInformation/IncomeInformationDialog";
+import { IncomeMediaFormData } from "../components/dialog/incomeInformation/DocumentMediaDialog";
 
 interface FormData {
   personal?: {
@@ -16,17 +20,26 @@ interface FormData {
     additionalInfo?: AdditionalInfoFormData;
   };
   identity?: {
-    documentInfo?: DocumentInfoFormData;
-    documentMedia?: DocumentMediaFormData;
+    identityInfo?: IdentityInfoFormData;
+    identityMedia?: IdentityMediaFormData;
   };
-  residence?: any;
-  income?: any;
+  residence?: {
+    residenceInfo?: ResidenceInfoFormData;
+    residenceMedia?: ResidenceMediaFormData;
+  };
+  income?: {
+    incomeInfo?: IncomeInformationFormData;
+    incomeMedia?: IncomeMediaFormData;
+  };
   selfie?: any;
 }
 
 export interface FormContextType {
   formData: FormData;
-  updateFormData: (newData: any, key: string) => void;
+  updateFormData: (
+    newData: any,
+    key: "personal" | "identity" | "residence" | "income" | "selfie"
+  ) => void;
   deleteFormData: () => void;
 }
 
@@ -48,14 +61,27 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("vibra_bb@formData", JSON.stringify(formData));
   }, [formData]);
 
-  const updateFormData = (newData: any, key: string) => {
-    console.log("newData:", newData);
-    console.log("formData:", formData);
-    setFormData((prevData) => {
-      console.log("prevData:", prevData);
-      if (isEmpty(prevData)) return { [key]: newData };
-      return { [key]: { ...prevData["personal"], ...newData } };
-    });
+  const _getLocalStorage = (): FormData | null => {
+    const storedData = localStorage.getItem("vibra_bb@formData");
+    return storedData ? JSON.parse(storedData) : null;
+  };
+
+  const updateFormData = (
+    newData: any,
+    key: "personal" | "identity" | "residence" | "income" | "selfie"
+  ) => {
+    const localStorage = _getLocalStorage();
+    if (localStorage) {
+      setFormData((prevData) => {
+        if (isEmpty(prevData)) return { ...localStorage, [key]: newData };
+        return { ...localStorage, [key]: { ...prevData[key], ...newData } };
+      });
+    } else {
+      setFormData((prevData) => {
+        if (isEmpty(prevData)) return { [key]: newData };
+        return { ...prevData, [key]: { ...prevData[key], ...newData } };
+      });
+    }
   };
 
   const deleteFormData = () => {

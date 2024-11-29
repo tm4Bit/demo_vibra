@@ -9,7 +9,6 @@ interface Props {
 
 export const InstructionsDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(() => {
-    // NOTE: Validate form and save in localstorage
     gotoNext(1);
   }, []);
 

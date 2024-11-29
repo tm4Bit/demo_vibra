@@ -41,8 +41,15 @@ export const DeclarationsDialog = () => {
       title="Essas declarações são importantes para emitir seu cartão:"
       triggerText="Solicitar Cartão Petrobras"
       isOpen={false}
+      // close={true}
     >
       <form onSubmit={handleSubmit(handleContinue)}>
+        {!isEmpty(errors) && (
+          <span className={styles.errorContainer}>
+            <MdErrorOutline size={16} color="#ff0000" />
+            <span>Marque todas as opções para prosseguir!</span>
+          </span>
+        )}
         <div className={styles.formRow}>
           <label htmlFor="1">Nasci no Brasil </label>
           <input
@@ -95,12 +102,6 @@ export const DeclarationsDialog = () => {
           <button type="submit" className={styles.submitButton}>
             Continuar
           </button>
-          {!isEmpty(errors) && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>Marque todas as opções para prosseguir!</span>
-            </span>
-          )}
         </div>
       </form>
     </CustomDialog>

@@ -1,11 +1,13 @@
 import { useCallback } from "react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MdErrorOutline } from "react-icons/md";
+import { z } from "zod";
+import { InputMask } from "@react-input/mask";
+
 import { useFormContext } from "@/app/hooks/useFormContext";
 
 import { CustomDialog } from "../../dialog/Dialog";
+import { InputError } from "../../InputError";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
 
@@ -26,7 +28,7 @@ const DigitalInfoFormSchema = z.object({
 export type DigitalInfoFormData = z.infer<typeof DigitalInfoFormSchema>;
 
 export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
-  const { formData, updateFormData } = useFormContext();
+  const { updateFormData } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -37,7 +39,6 @@ export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
 
   const handleContinue = useCallback(
     (data: DigitalInfoFormData) => {
-      // NOTE: Validate form and save in localstorage
       if (isValid) {
         updateFormData({ digitalInfo: data }, "personal");
         gotoNext(2);
@@ -51,20 +52,13 @@ export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
       <form onSubmit={handleSubmit(handleContinue)}>
         <div className={styles.row}>
           <label>Informe o número do seu celular</label>
-          <input
-            type="text"
-            placeholder="(XX) 9XXXX-XXXX"
-            {...register("phone", {
-              required: "Número de celular é requerido!",
-            })}
+          <InputMask
+            showMask
+            mask="(__) _____-____"
+            replacement={{ _: /\d/ }}
+            {...register("phone")}
           />
-
-          {errors.phone && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.phone.message}</span>
-            </span>
-          )}
+          <InputError message={errors.phone?.message} />
         </div>
         <div className={styles.row}>
           <label>Informe o seu e-mail</label>
@@ -73,12 +67,7 @@ export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
             placeholder="exemplo@gmail.com"
             {...register("email", { required: "Email é requerido!" })}
           />
-          {errors.email && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.email.message}</span>
-            </span>
-          )}
+          <InputError message={errors.email?.message} />
         </div>
 
         <div className={styles.actionContainer}>

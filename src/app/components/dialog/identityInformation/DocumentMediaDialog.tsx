@@ -1,12 +1,13 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { MdErrorOutline } from "react-icons/md";
 
-import { CustomDialog } from "../../dialog/Dialog";
 import { useFormContext } from "@/app/hooks/useFormContext";
+
+import { InputError } from "../../InputError";
+import { CustomDialog } from "../../dialog/Dialog";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
 
@@ -18,7 +19,7 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const DocumentMediaSchema = z.object({
+const IdentityMediaSchema = z.object({
   docFront: z
     .any()
     .refine(
@@ -41,7 +42,7 @@ const DocumentMediaSchema = z.object({
     ),
 });
 
-export type DocumentMediaFormData = z.infer<typeof DocumentMediaSchema>;
+export type IdentityMediaFormData = z.infer<typeof IdentityMediaSchema>;
 
 export const DocumentMediaDialog: React.FC = () => {
   const { updateFormData } = useFormContext();
@@ -49,13 +50,13 @@ export const DocumentMediaDialog: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<DocumentMediaFormData>({
-    resolver: zodResolver(DocumentMediaSchema),
+  } = useForm<IdentityMediaFormData>({
+    resolver: zodResolver(IdentityMediaSchema),
   });
   const router = useRouter();
 
   const handleContinue = useCallback(
-    (data: DocumentMediaFormData) => {
+    (data: IdentityMediaFormData) => {
       // NOTE: Validate form and save in localstorage
       if (isValid) {
         updateFormData({ documentMedia: data }, "identity");
@@ -79,12 +80,7 @@ export const DocumentMediaDialog: React.FC = () => {
             type="file"
             {...register("docFront", { required: true })}
           />
-          {errors.docFront && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.docFront?.message?.toString()}</span>
-            </span>
-          )}
+          <InputError message={errors.docFront?.message?.toString()} />
         </div>
         <div className={styles.row}>
           <label>Verso do documento</label>
@@ -93,12 +89,7 @@ export const DocumentMediaDialog: React.FC = () => {
             type="file"
             {...register("docBack", { required: true })}
           />
-          {errors.docBack && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.docBack?.message?.toString()}</span>
-            </span>
-          )}
+          <InputError message={errors.docBack?.message?.toString()} />
         </div>
         <div className={styles.actionContainer}>
           <button type="submit" className={styles.submitButton}>

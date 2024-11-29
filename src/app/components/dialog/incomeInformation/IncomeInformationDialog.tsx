@@ -1,17 +1,43 @@
 import { useCallback } from "react";
-import { CustomDialog } from "../../dialog/Dialog";
-import { z } from "zod";
-import { MdErrorOutline } from "react-icons/md";
-
-import styles from "@/app/styles/components/dialog/styles.module.css";
 import { useRouter } from "next/navigation";
-import { useFormContext } from "@/app/hooks/useFormContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+import { useFormContext } from "@/app/hooks/useFormContext";
+
+import { CustomDialog } from "../../dialog/Dialog";
+import { InputError } from "../../InputError";
+
+import styles from "@/app/styles/components/dialog/styles.module.css";
 
 const IncomeInformationSchema = z.object({
-  incomeEmissionDate: z.string().date("Informe uma data válida!"),
-  startOcupationDate: z.string().date("Informe uma data válida!"),
+  incomeEmissionDate: z
+    .string()
+    .date("Informe uma data válida!")
+    .refine(
+      (date) => {
+        const today = new Date();
+        const selectedDate = new Date(date);
+        return selectedDate <= today;
+      },
+      {
+        message: "Data inválida.",
+      }
+    ),
+  startOcupationDate: z
+    .string()
+    .date("Informe uma data válida!")
+    .refine(
+      (date) => {
+        const today = new Date();
+        const selectedDate = new Date(date);
+        return selectedDate <= today;
+      },
+      {
+        message: "Data inválida.",
+      }
+    ),
   profession: z.enum(
     [
       "Agente político",
@@ -22,9 +48,8 @@ const IncomeInformationSchema = z.object({
     ],
     {
       errorMap: (issue, ctx) => {
-        if (issue.code === "invalid_enum_value") {
+        if (issue.code === "invalid_enum_value")
           return { message: "Selecione uma opção válida!" };
-        }
         return { message: "Selecione uma profissão!" };
       },
     }
@@ -32,10 +57,9 @@ const IncomeInformationSchema = z.object({
   origin: z.enum(
     ["Assalariado", "CLT", "Rendimentos", "Profissional autônomo", "MEI"],
     {
-      errorMap: (issue, ctx) => {
-        if (issue.code === "invalid_enum_value") {
+      errorMap: (issue: z.ZodIssueOptionalMessage, _ctx: z.ErrorMapCtx) => {
+        if (issue.code === "invalid_enum_value")
           return { message: "Selecione uma opção válida!" };
-        }
         return { message: "Selecione a origem da renda!" };
       },
     }
@@ -72,25 +96,15 @@ export const IncomeInformationDialog: React.FC = () => {
         <div className={styles.row}>
           <label>Digite o mês e ano da emissão do comprovante de renda</label>
           <input type="date" {...register("incomeEmissionDate")} />
-
-          {errors.incomeEmissionDate && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>Informe a data de emissão do comprovante!</span>
-            </span>
-          )}
+          <InputError message={errors.incomeEmissionDate?.message} />
         </div>
+
         <div className={styles.row}>
           <label>Digite o mês e ano do início da sua atual ocupação</label>
           <input type="date" {...register("startOcupationDate")} />
-
-          {errors.startOcupationDate && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>Informe a data de início da sua ocupação!</span>
-            </span>
-          )}
+          <InputError message={errors.startOcupationDate?.message} />
         </div>
+
         <div className={styles.row}>
           <label>Qual é a sua profissão?</label>
           <select {...register("profession")}>
@@ -105,13 +119,7 @@ export const IncomeInformationDialog: React.FC = () => {
             </option>
             <option value="Agrônomo">Agrônomo</option>
           </select>
-
-          {errors.profession && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>Selecione a sua profissão!</span>
-            </span>
-          )}
+          <InputError message={errors.profession?.message} />
         </div>
 
         <div className={styles.row}>
@@ -124,13 +132,7 @@ export const IncomeInformationDialog: React.FC = () => {
             <option value="Profissional autônomo">Profissional autônomo</option>
             <option value="MEI">MEI</option>
           </select>
-
-          {errors.origin && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>Selecione a origem da sua renda!</span>
-            </span>
-          )}
+          <InputError message={errors.origin?.message} />
         </div>
 
         <div className={styles.actionContainer}>

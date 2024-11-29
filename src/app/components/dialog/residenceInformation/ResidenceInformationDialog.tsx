@@ -1,16 +1,22 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CustomDialog } from "../../dialog/Dialog";
-
-import styles from "@/app/styles/components/dialog/styles.module.css";
+import { InputMask } from "@react-input/mask";
 import { useForm } from "react-hook-form";
-import { useFormContext } from "@/app/hooks/useFormContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { MdErrorOutline } from "react-icons/md";
+
+import { useFormContext } from "@/app/hooks/useFormContext";
+
+import { CustomDialog } from "../../dialog/Dialog";
+import { InputError } from "../../InputError";
+
+import styles from "@/app/styles/components/dialog/styles.module.css";
 
 const ResidenceInfoFormSchema = z.object({
-  cep: z.string().regex(/^\d{5}-?\d{3}$/, "CEP inválido"),
+  cep: z
+    .string()
+    .regex(/^\d{2}\.\d{3}-?\d{3}$/, "CEP inválido")
+    .transform((cep: string): string => cep.replace(/\.|-/g, "")),
   address: z.string().min(5, "Endereço inválido"),
   number: z.string().min(1, "Número inválido"),
   complement: z.string().optional(),
@@ -25,32 +31,59 @@ const ResidenceInfoFormSchema = z.object({
           return { message: "Por favor, selecione uma opção válida." };
         return { message: "Situação da propriedade obrigatória" };
       },
-    }
+    },
   ),
 });
 
 export type ResidenceInfoFormData = z.infer<typeof ResidenceInfoFormSchema>;
 
 export const ResidenceInformationDialog: React.FC = () => {
-  const { formData, updateFormData } = useFormContext();
+  const { updateFormData } = useFormContext();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
+    setValue,
+    getValues,
   } = useForm<ResidenceInfoFormData>({
     resolver: zodResolver(ResidenceInfoFormSchema),
   });
-  const router = useRouter();
+
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleContinue = useCallback(
     (data: ResidenceInfoFormData) => {
-      // NOTE: Validate form and save in localstorage
       if (isValid) {
         updateFormData({ residenceInfo: data }, "residence");
         router.push("renda");
       }
     },
-    [isValid]
+    [isValid],
   );
+
+  const handleCepBlur = async () => {
+    const cep = getValues("cep");
+    if (!cep) return;
+    const cepNumber = cep.replace(/\.|-/g, "");
+
+    setError(null);
+
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cepNumber}/json/`);
+      const data = await res.json();
+
+      setValue("address", data.logradouro);
+      setValue("neighborhood", data.bairro);
+      setValue("city", data.localidade);
+      setValue("state", data.uf);
+    } catch (err: any) {
+      setError("Um erro inesperado ocorreu tente novamente!");
+    } finally {
+      setReady(true);
+    }
+  };
 
   return (
     <CustomDialog
@@ -59,15 +92,17 @@ export const ResidenceInformationDialog: React.FC = () => {
       isOpen={true}
     >
       <form onSubmit={handleSubmit(handleContinue)}>
+        <InputError message={error || undefined} />
         <div className={styles.row}>
-          <label>Seu CEP</label>
-          <input type="text" placeholder="XX.XXX-XXX" {...register("cep")} />
-          {errors.cep && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.cep.message}</span>
-            </span>
-          )}
+          <InputMask
+            showMask
+            mask="__.___-___"
+            replacement={{ _: /\d/ }}
+            {...register("cep", {
+              onBlur: handleCepBlur,
+            })}
+          />
+          <InputError message={errors.cep?.message} />
         </div>
         <div className={styles.row}>
           <input
@@ -75,36 +110,23 @@ export const ResidenceInformationDialog: React.FC = () => {
             placeholder="Seu endereço"
             {...register("address")}
           />
-          {errors.address && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.address.message}</span>
-            </span>
-          )}
+          <InputError message={errors.address?.message} />
         </div>
-        <div className={styles.row}>
-          <input type="text" placeholder="Número" {...register("number")} />
 
-          {errors.number && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.number.message}</span>
-            </span>
-          )}
-        </div>
-        <div className={styles.row}>
-          <input
-            type="text"
-            placeholder="Complemento"
-            {...register("complement")}
-          />
+        <div className={styles.rowContainer}>
+          <div className={styles.row}>
+            <input type="text" placeholder="Número" {...register("number")} />
+            <InputError message={errors.number?.message} />
+          </div>
+          <div className={styles.row}>
+            <input
+              type="text"
+              placeholder="Complemento"
+              {...register("complement")}
+            />
 
-          {errors.complement && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.complement.message}</span>
-            </span>
-          )}
+            <InputError message={errors.complement?.message} />
+          </div>
         </div>
         <div className={styles.row}>
           <input
@@ -112,33 +134,25 @@ export const ResidenceInformationDialog: React.FC = () => {
             placeholder="Bairro"
             {...register("neighborhood")}
           />
-
-          {errors.neighborhood && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.neighborhood.message}</span>
-            </span>
-          )}
+          <InputError message={errors.neighborhood?.message} />
         </div>
-        <div className={styles.row}>
-          <input type="text" placeholder="Cidade" {...register("city")} />
-
-          {errors.city && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.city.message}</span>
-            </span>
-          )}
-        </div>
-        <div className={styles.row}>
-          <input type="text" placeholder="Estado" {...register("state")} />
-
-          {errors.state && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.state.message}</span>
-            </span>
-          )}
+        <div className={styles.rowContainer}>
+          <div className={styles.row}>
+            <input
+              type="text"
+              placeholder="Cidade"
+              {...register("city")}
+            />
+            <InputError message={errors.city?.message} />
+          </div>
+          <div className={styles.row}>
+            <input
+              type="text"
+              placeholder="Estado"
+              {...register("state")}
+            />
+            <InputError message={errors.state?.message} />
+          </div>
         </div>
         <div className={styles.row}>
           <select {...register("propertySituation")}>
@@ -149,12 +163,7 @@ export const ResidenceInformationDialog: React.FC = () => {
             <option value="Familiar">Familiar</option>
             <option value="Cedido">Cedido</option>
           </select>
-          {errors.propertySituation && (
-            <span className={styles.errorContainer}>
-              <MdErrorOutline size={16} color="#ff0000" />
-              <span>{errors.propertySituation.message}</span>
-            </span>
-          )}
+          <InputError message={errors.propertySituation?.message} />
         </div>
 
         <div className={styles.actionContainer}>
