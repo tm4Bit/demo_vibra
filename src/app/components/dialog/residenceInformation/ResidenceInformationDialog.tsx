@@ -50,7 +50,7 @@ export const ResidenceInformationDialog: React.FC = () => {
     resolver: zodResolver(ResidenceInfoFormSchema),
   });
 
-  const [ready, setReady] = useState(false);
+  const [filled, setFilled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = useCallback(
@@ -68,20 +68,26 @@ export const ResidenceInformationDialog: React.FC = () => {
     if (!cep) return;
     const cepNumber = cep.replace(/\.|-/g, "");
 
-    setError(null);
+    if (error !== null) setError(null);
 
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cepNumber}/json/`);
       const data = await res.json();
 
-      setValue("address", data.logradouro);
-      setValue("neighborhood", data.bairro);
-      setValue("city", data.localidade);
-      setValue("state", data.uf);
+      const options = {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      };
+
+      setValue("address", data.logradouro, options);
+      setValue("neighborhood", data.bairro, options);
+      setValue("city", data.localidade, options);
+      setValue("state", data.uf, options);
     } catch (err: any) {
       setError("Um erro inesperado ocorreu tente novamente!");
     } finally {
-      setReady(true);
+      setFilled(true);
     }
   };
 
@@ -109,6 +115,7 @@ export const ResidenceInformationDialog: React.FC = () => {
             type="text"
             placeholder="Seu endereço"
             {...register("address")}
+            readOnly={filled}
           />
           <InputError message={errors.address?.message} />
         </div>
@@ -133,6 +140,7 @@ export const ResidenceInformationDialog: React.FC = () => {
             type="text"
             placeholder="Bairro"
             {...register("neighborhood")}
+            readOnly={filled}
           />
           <InputError message={errors.neighborhood?.message} />
         </div>
@@ -142,6 +150,7 @@ export const ResidenceInformationDialog: React.FC = () => {
               type="text"
               placeholder="Cidade"
               {...register("city")}
+              readOnly={filled}
             />
             <InputError message={errors.city?.message} />
           </div>
@@ -150,6 +159,7 @@ export const ResidenceInformationDialog: React.FC = () => {
               type="text"
               placeholder="Estado"
               {...register("state")}
+              readOnly={filled}
             />
             <InputError message={errors.state?.message} />
           </div>

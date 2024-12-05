@@ -1,6 +1,5 @@
-import { useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { InputMask } from "@react-input/mask";
+import { useCallback, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -20,15 +19,15 @@ const IncomeMediaFormSchema = z.object({
     .any()
     .refine(
       (file) => file && file[0]?.size <= 5000000,
-      `Max image size is 5MB.`
+      "O arquivo deve ter no máximo 5MB.",
     )
     .refine(
       (file) =>
         file &&
         ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
-          file[0]?.type
+          file[0]?.type,
         ),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
+      "O arquivo deve ser uma imagem (JPEG, JPG, PNG ou WEBP).",
     ),
   incomeDocumentType: z.enum(
     [
@@ -40,23 +39,36 @@ const IncomeMediaFormSchema = z.object({
       "Extrato pagamento do INSS",
     ],
     {
-      errorMap: (issue, _ctx) => {
+      errorMap: (issue: z.ZodIssueOptionalMessage, _ctx: z.ErrorMapCtx) => {
         if (issue.code === "invalid_enum_value")
           return { message: "Selecione uma opção válida!" };
         return { message: "Selecione o tipo de comprovante!" };
       },
-    }
+    },
   ),
-  income: z.string().min(1, "Informe o seu rendimento mensal"),
+  income: z
+    .string()
+    .refine(
+      (value) => {
+        const number = Number(value.replace(/\D/g, ""));
+        return number > 0 && number <= 999999999;
+      },
+      { message: "Informe um valor válido!" },
+    )
+    .transform((value) => {
+      return (Number(value.replace(/\D/g, "")) / 100).toFixed(2);
+    }),
 });
 
 export type IncomeMediaFormData = z.infer<typeof IncomeMediaFormSchema>;
 
 export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
+  const [income, setIncome] = useState("R$ 0,00");
   const { updateFormData } = useFormContext();
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isValid },
   } = useForm<IncomeMediaFormData>({
     resolver: zodResolver(IncomeMediaFormSchema),
@@ -69,17 +81,16 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
         gotoNext(2);
       }
     },
-    [isValid]
+    [isValid],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value = event.target.value.replace(/\D/g, "");
-    if (value.length > 2) {
-      value = value.replace(/(\d{2})$/, ",$1");
-    }
-    if (value.length > 5) {
-      value = value.replace(/(\d{3})(?=\d{2,})/, "$1.");
-    }
+    let value = event.target.value.replace(/\D/g, ""); // Remove all non-numeric characters
+    const currency = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(Number(value) / 100);
+    setIncome(currency);
   };
 
   return (
@@ -106,9 +117,7 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
             <option value="Extrato pagamento do INSS">
               Extrato pagamento do INSS
             </option>
-            <option value="Aviso de Crédito à Pesquisador/Bolsista">
-              DECORE
-            </option>
+            <option value="DECORE">DECORE</option>
           </select>
           <InputError
             message={errors.incomeDocumentType?.message?.toString()}
@@ -117,17 +126,18 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
 
         <div className={styles.row}>
           <label>Informe o seu rendimento mensal</label>
-          <InputMask
-            mask="R$ 999.999,99"
-            replacement={{ 9: /\d/ }}
-            {...register("income")}
-            onChange={handleChange}
+          <Controller
+            control={control}
+            name="income"
+            render={({ field: { onChange, value, ...fields } }) => (
+              <input
+                {...fields}
+                {...register("income")}
+                value={income}
+                onChange={handleChange}
+              />
+            )}
           />
-          {/* <InputMask
-            mask="R$ 999.999,99"
-            replacement={{ 9: /\d/ }}
-            {...register("income")}
-          /> */}
           <InputError message={errors.income?.message?.toString()} />
         </div>
         <div className={styles.actionContainer}>

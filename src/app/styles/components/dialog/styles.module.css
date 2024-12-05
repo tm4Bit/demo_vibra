@@ -98,18 +98,6 @@
   font-size: 0.8rem;
 }
 
-.submitButton {
-  padding: 12px 20px;
-  background-color: var(--secondary);
-  margin: 12px 0;
-}
-
-.captureButton {
-  padding: 12px 20px;
-  background-color: var(--secondary);
-  margin: 12px 0;
-}
-
 .webcamContainer {
   width: 100%;
   margin: 0 auto;
@@ -122,12 +110,37 @@
 
 .buttonContainer {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 4px;
   margin: 12px 0;
 }
 
 .retryButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: var(--secondary);
+  margin: 12px 0;
+}
+
+.submitButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: var(--secondary);
+  margin: 12px 0;
+}
+
+.captureButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 12px 20px;
   background-color: var(--secondary);
   margin: 12px 0;

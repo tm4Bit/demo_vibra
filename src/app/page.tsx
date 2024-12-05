@@ -1,5 +1,6 @@
-import { MdOutlineKeyboardDoubleArrowLeft } from "react-icons/md";
-import { DeclarationsDialog } from "./components/DeclarationsDialog";
+import { FaAnglesLeft } from "react-icons/fa6";
+
+import { DeclarationsDialog } from "./components/dialog/DeclarationsDialog";
 
 import styles from "./styles/home.module.css";
 
@@ -28,7 +29,7 @@ export default function Home() {
       {/* goback action */}
       <div className={styles.row}>
         <a href="/">
-          <MdOutlineKeyboardDoubleArrowLeft size={24} />
+          <FaAnglesLeft size={18} />
         </a>
       </div>
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { MdErrorOutline } from "react-icons/md";
+import { FaExclamationCircle } from "react-icons/fa";
 
 import styles from "@/app/styles/components/inputError.module.css";
 
@@ -10,7 +10,7 @@ export const InputError: React.FC<InputErrorProps> = ({ message }) => {
   if (!message) return null;
   return (
     <span className={styles.errorContainer}>
-      <MdErrorOutline size={16} color="#ff0000" />
+      <FaExclamationCircle size={16} color="#ff0000" />
       <span>{message}</span>
     </span>
   );

@@ -1,0 +1,13 @@
+.title {
+  color: #00773c;
+  font-size: 1.4rem;
+  margin: 10px 0;
+
+  @media (max-width: 400px) {
+    font-size: 1.2rem;
+  }
+}
+
+.row {
+  padding: 0 30px;
+}

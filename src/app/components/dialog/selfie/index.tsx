@@ -1,58 +1,26 @@
-import { useCallback } from "react";
-import { CustomDialog } from "../../dialog/Dialog";
+"use client";
 
-import styles from "@/app/styles/components/dialog/styles.module.css";
+import { useCallback, useState } from "react";
 
-interface Props {
-  gotoNext: (n: number) => void;
-}
+import { InstructionsDialog } from "@/app/components/dialog/selfie/SelfieInstructionDialog";
+import { WebcamDialog } from "@/app/components/dialog/selfie/WebcamDialog";
 
-export const InstructionsDialog: React.FC<Props> = ({ gotoNext }) => {
-  const handleContinue = useCallback(() => {
-    gotoNext(1);
+import styles from "@/app/styles/pages/styles.module.css";
+
+export const FormStepsContainer = () => {
+  const [step, setStep] = useState<number>();
+
+  const nextStep = useCallback((n: number) => {
+    setStep(n);
   }, []);
 
-  return (
-    <CustomDialog
-      title="Agora tire uma selfie"
-      triggerText="Começar"
-      isOpen={false}
-    >
-      <div className={styles.list}>
-        <ol>
-          <li>
-            Certifique-se de que o ambiente esteja bem iluminado. Evite tirar a
-            selfie em locais escuros, isso pode comprometer a qualidade da
-            imagem.
-          </li>
-          <li>
-            Certifique-se de que a câmera esteja focada corretamente em você.
-            Evite tremores ou movimentos bruscos ao tirar a foto para evitar que
-            ela fique desfocada.{" "}
-          </li>
-          <li>
-            Posição e enquadramento: Posicione-se de forma centralizada na foto,
-            de preferência com o rosto alinhado com o centro da imagem. Evite
-            cortar partes do{" "}
-          </li>
-          <li>
-            Mantenha uma expressão facial neutra. Evite sorrir e usar óculos.
-          </li>
-          <li>
-            Escolha um fundo simples. sem pessoas passando ou objetos que possam
-            desviar a atenção.
-          </li>
-        </ol>
-      </div>
-      <div className={styles.actionContainer}>
-        <button
-          onClick={handleContinue}
-          type="button"
-          className={styles.submitButton}
-        >
-          Ok, entendi!
-        </button>
-      </div>
-    </CustomDialog>
-  );
+  let dialogToRender;
+  switch (step) {
+    case 1:
+      dialogToRender = <WebcamDialog />;
+      break;
+    default:
+      dialogToRender = <InstructionsDialog gotoNext={nextStep} />;
+  }
+  return <div className={styles.actionContainer}>{dialogToRender}</div>;
 };

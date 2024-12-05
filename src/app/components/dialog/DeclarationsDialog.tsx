@@ -6,8 +6,9 @@ import { isEmpty } from "lodash";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CustomDialog } from "./dialog/Dialog";
-import { MdErrorOutline } from "react-icons/md";
+
+import { CustomDialog } from "@/app/components/dialog/Dialog";
+import { InputError } from "@/app/components/InputError";
 
 import styles from "@/app/styles/components/dialog/declarations.module.css";
 
@@ -32,23 +33,21 @@ export const DeclarationsDialog = () => {
   });
   const router = useRouter();
 
-  const handleContinue = (_data: declarationData) => {
-    if (isValid) router.push("nao_correntista");
-  };
+  const handleContinue = useCallback(() => {
+    if (isValid) {
+      router.push("/nao_correntista");
+    }
+  }, [isValid]);
 
   return (
     <CustomDialog
       title="Essas declarações são importantes para emitir seu cartão:"
       triggerText="Solicitar Cartão Petrobras"
       isOpen={false}
-      // close={true}
     >
       <form onSubmit={handleSubmit(handleContinue)}>
         {!isEmpty(errors) && (
-          <span className={styles.errorContainer}>
-            <MdErrorOutline size={16} color="#ff0000" />
-            <span>Marque todas as opções para prosseguir!</span>
-          </span>
+          <InputError message="Marque todas as opções para prosseguir!" />
         )}
         <div className={styles.formRow}>
           <label htmlFor="1">Nasci no Brasil </label>

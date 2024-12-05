@@ -1,15 +1,19 @@
 "use client";
 
-import { createContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { isEmpty } from "lodash";
 
-import { PersonalInfoFormData } from "../components/dialog/personalInformation";
+// Personal Information
+import { PersonalInfoFormData } from "../components/dialog/personalInformation/PersonalInformationDialog";
 import { DigitalInfoFormData } from "../components/dialog/personalInformation/DigitalInformationDialog";
 import { AdditionalInfoFormData } from "../components/dialog/personalInformation/AdditionalInformationDialog";
-import { IdentityInfoFormData } from "../components/dialog/identityInformation";
+// Identity Information
+import { IdentityInfoFormData } from "../components/dialog/identityInformation/IdentityInformationDialog";
 import { IdentityMediaFormData } from "../components/dialog/identityInformation/DocumentMediaDialog";
+// Residence Information
 import { ResidenceInfoFormData } from "../components/dialog/residenceInformation/ResidenceInformationDialog";
 import { ResidenceMediaFormData } from "../components/dialog/residenceInformation/DocumentMediaDialog";
+// Income Information
 import { IncomeInformationFormData } from "../components/dialog/incomeInformation/IncomeInformationDialog";
 import { IncomeMediaFormData } from "../components/dialog/incomeInformation/DocumentMediaDialog";
 
@@ -31,24 +35,26 @@ interface FormData {
     incomeInfo?: IncomeInformationFormData;
     incomeMedia?: IncomeMediaFormData;
   };
-  selfie?: any;
+  selfie?: {
+    selfieMedia?: string;
+  };
 }
 
 export interface FormContextType {
   formData: FormData;
   updateFormData: (
     newData: any,
-    key: "personal" | "identity" | "residence" | "income" | "selfie"
+    key: "personal" | "identity" | "residence" | "income" | "selfie",
   ) => void;
   deleteFormData: () => void;
 }
 
 const FormContext = createContext({} as FormContextType);
 
-const FormProvider = ({ children }: { children: ReactNode }) => {
+const FormProvider = ({ children }: { children: React.ReactNode }) => {
   const [formData, setFormData] = useState<FormData>({});
 
-  // Carrega os dados do localStorage ao iniciar
+  // load data from localStorage on start
   useEffect(() => {
     const storedData = localStorage.getItem("vibra_bb@formData");
     if (storedData) {
@@ -56,7 +62,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Salva os dados no localStorage sempre que vibra_bb@formData for atualizado
+  // save data to localStorage whenever vibra_bb@formData is updated
   useEffect(() => {
     localStorage.setItem("vibra_bb@formData", JSON.stringify(formData));
   }, [formData]);
@@ -68,7 +74,7 @@ const FormProvider = ({ children }: { children: ReactNode }) => {
 
   const updateFormData = (
     newData: any,
-    key: "personal" | "identity" | "residence" | "income" | "selfie"
+    key: "personal" | "identity" | "residence" | "income" | "selfie",
   ) => {
     const localStorage = _getLocalStorage();
     if (localStorage) {

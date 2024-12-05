@@ -1,7 +1,8 @@
 import React, { useCallback, useRef, useState } from "react";
 import Webcam from "react-webcam";
-import { FaBackspace, FaCamera } from "react-icons/fa";
+import { FaCamera } from "react-icons/fa";
 import { BsFillSendFill } from "react-icons/bs";
+import { FaArrowRotateLeft } from "react-icons/fa6";
 
 import { useFormContext } from "@/app/hooks/useFormContext";
 
@@ -31,7 +32,7 @@ export const WebcamDialog: React.FC = () => {
   }, []);
 
   const handleContinue = useCallback(() => {
-    // TODO: Navigate to next step
+    // TODO: Meke all the api calls here and navigate to Success page
     console.log("Form: ", JSON.stringify(formData, null, 2));
   }, []);
 
@@ -50,15 +51,16 @@ export const WebcamDialog: React.FC = () => {
         <div className={styles.buttonContainer}>
           <button onClick={capture} className={styles.captureButton}>
             <FaCamera />
-            Capturar
+            <span>Capturar</span>
           </button>
           <button onClick={retry} className={styles.retryButton}>
-            <FaBackspace />
-            denovo
+            {/* <FaBackspace /> */}
+            <FaArrowRotateLeft />
+            <span>novamente</span>
           </button>
           <button onClick={handleContinue} className={styles.submitButton}>
             <BsFillSendFill />
-            Submeter
+            <span>Submeter</span>
           </button>
         </div>
       </div>
