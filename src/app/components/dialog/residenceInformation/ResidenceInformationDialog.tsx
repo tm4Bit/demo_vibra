@@ -56,19 +56,21 @@ export const ResidenceInformationDialog: React.FC = () => {
   const handleContinue = useCallback(
     async (data: ResidenceInfoFormData) => {
       if (isValid) {
-        try {
-          await fetch("/api/order", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: getApplicationId(), residenceInfo: data }),
-          });
-          updateFormData({ residenceInfo: data }, "residence");
-          router.push("renda");
-        } catch (error) {
-          console.error("Error updating form data", error);
-        }
+        // try {
+        //   await fetch("/api/order", {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({ id: getApplicationId(), residenceInfo: data }),
+        //   });
+        //   updateFormData({ residenceInfo: data }, "residence");
+        //   router.push("renda");
+        // } catch (error) {
+        //   console.error("Error updating form data", error);
+        // }
+        updateFormData({ residenceInfo: data }, "residence");
+        router.push("renda");
       }
     },
     [isValid],

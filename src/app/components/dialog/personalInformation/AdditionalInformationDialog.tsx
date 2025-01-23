@@ -56,19 +56,21 @@ export const AdditionalInformationDialog: React.FC = () => {
   const handleContinue = useCallback(
     async (data: AdditionalInfoFormData) => {
       if (isValid) {
-        try {
-          await fetch("/api/order", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: getApplicationId(), ...data }),
-          });
-          updateFormData({ additionalInfo: data }, "personal");
-          router.push("identidade");
-        } catch (error) {
-          console.error("Error creating additional information:", error);
-        }
+        // try {
+        //   await fetch("/api/order", {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({ id: getApplicationId(), ...data }),
+        //   });
+        //   updateFormData({ additionalInfo: data }, "personal");
+        //   router.push("identidade");
+        // } catch (error) {
+        //   console.error("Error creating additional information:", error);
+        // }
+        updateFormData({ additionalInfo: data }, "personal");
+        router.push("identidade");
       }
     },
     [isValid]

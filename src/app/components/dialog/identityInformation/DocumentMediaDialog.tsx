@@ -58,39 +58,40 @@ export const DocumentMediaDialog: React.FC = () => {
   const handleContinue = useCallback(
     async (data: IdentityMediaFormData) => {
       if (isValid) {
-        try {
-          const docFront = data.docFront[0];
-          const docBack = data.docBack[0];
+        // try {
+        //   const docFront = data.docFront[0];
+        //   const docBack = data.docBack[0];
 
-          const readerFront = new FileReader();
-          const readerBack = new FileReader();
+        //   const readerFront = new FileReader();
+        //   const readerBack = new FileReader();
 
-          readerFront.readAsDataURL(docFront);
-          readerBack.readAsDataURL(docBack);
+        //   readerFront.readAsDataURL(docFront);
+        //   readerBack.readAsDataURL(docBack);
 
-          readerFront.onload = async () => {
-            const docFrontBase64 = readerFront.result?.toString();
-            readerBack.onload = async () => {
-              const docBackBase64 = readerBack.result?.toString();
-              updateFormData(
-                { documentMedia: { docBack: docBackBase64, docFront: docFrontBase64 } },
-                "identity"
-              );
+        //   readerFront.onload = async () => {
+        //     const docFrontBase64 = readerFront.result?.toString();
+        //     readerBack.onload = async () => {
+        //       const docBackBase64 = readerBack.result?.toString();
+        //       updateFormData(
+        //         { documentMedia: { docBack: docBackBase64, docFront: docFrontBase64 } },
+        //         "identity"
+        //       );
 
-              await fetch("/api/order", {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ id: getApplicationId(), docFront: docFrontBase64, docBack: docBackBase64 }),
-              });
+        //       await fetch("/api/order", {
+        //         method: "PUT",
+        //         headers: {
+        //           "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({ id: getApplicationId(), docFront: docFrontBase64, docBack: docBackBase64 }),
+        //       });
 
-              router.push("residencia");
-            };
-          };
-        } catch (error) {
-          console.error("Error creating identity information.", error);
-        }
+        //       router.push("residencia");
+        //     };
+        //   };
+        // } catch (error) {
+        //   console.error("Error creating identity information.", error);
+        // }
+        router.push("residencia");
       }
     },
     [isValid]

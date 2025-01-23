@@ -38,33 +38,34 @@ export const DeclarationsDialog = () => {
   const handleContinue = useCallback((data: declarationData) => {
     if (isValid) {
 			// save data to database
-			fetch("/api/order", {
-				method: "POST",
-				body: JSON.stringify(data),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
-				.then((res) => res.json())
-				.then((data) => {
-          console.log("declaration", data);
-          const declaration = {
-            bornInBrasil: data.application.bornInBrasil,
-            taxDomicile: data.application.taxDomicile,
-            responsibleForActs: data.application.responsibleForActs,
-            politicallyExposedPerson: data.application.politicallyExposedPerson,
-            authorizeSCRConsultation: data.application.authorizeSCRConsultation,
-            shareData: data.application.shareData,
-          };
+			// fetch("/api/order", {
+			// 	method: "POST",
+			// 	body: JSON.stringify(data),
+			// 	headers: {
+			// 		"Content-Type": "application/json",
+			// 	},
+			// })
+			// 	.then((res) => res.json())
+			// 	.then((data) => {
+      //     console.log("declaration", data);
+      //     const declaration = {
+      //       bornInBrasil: data.application.bornInBrasil,
+      //       taxDomicile: data.application.taxDomicile,
+      //       responsibleForActs: data.application.responsibleForActs,
+      //       politicallyExposedPerson: data.application.politicallyExposedPerson,
+      //       authorizeSCRConsultation: data.application.authorizeSCRConsultation,
+      //       shareData: data.application.shareData,
+      //     };
 
-          saveApplicationId(data.id);
+      //     saveApplicationId(data.id);
 
-          updateFormData({ declaration }, "declaration");
-					router.push("/nao_correntista");
-				})
-				.catch((error) => {
-					console.error("Error:", error);
-				});
+      //     updateFormData({ declaration }, "declaration");
+			// 		router.push("/nao_correntista");
+			// 	})
+			// 	.catch((error) => {
+			// 		console.error("Error:", error);
+			// 	});
+      router.push("/nao_correntista");
     }
   }, [isValid]);
 

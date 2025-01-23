@@ -96,19 +96,21 @@ export const DocumentInformationDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(
     async (data: IdentityInfoFormData) => {
       if (isValid) {
-        try {
-          await fetch("/api/order", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: getApplicationId(), ...data }),
-          });
-          updateFormData({ documentInfo: data }, "identity");
-          gotoNext(1);
-        } catch (error) {
-          console.error("Error creating identity information.", error);
-        }
+        // try {
+        //   await fetch("/api/order", {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({ id: getApplicationId(), ...data }),
+        //   });
+        //   updateFormData({ documentInfo: data }, "identity");
+        //   gotoNext(1);
+        // } catch (error) {
+        //   console.error("Error creating identity information.", error);
+        // }
+        updateFormData({ documentInfo: data }, "identity");
+        gotoNext(1);
       }
     },
     [isValid]

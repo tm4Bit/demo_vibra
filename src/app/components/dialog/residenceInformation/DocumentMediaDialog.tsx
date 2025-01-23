@@ -54,36 +54,37 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(
     async (data: ResidenceMediaFormData) => {
       if (isValid) {
-        try {
-          const reader1 = new FileReader();
-          const reader2 = new FileReader();
-          reader1.readAsDataURL(data.frontDocumentImage[0]);
-          reader2.readAsDataURL(data.backDocumentImage[0]);
-          reader1.onload = async () => {
-            reader2.onload = async () => {
-              await fetch("/api/order", {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  id: getApplicationId(),
-                  residenceMedia: {
-                    frontDocumentImage: reader1.result,
-                    backDocumentImage: reader2.result,
-                  }
-                }),
-              });
-              updateFormData({ documentMedia: {
-                frontDocumentImage: reader1.result,
-                backDocumentImage: reader2.result,
-              } }, "residence");
-              gotoNext(2);
-            };
-          };
-        } catch (error) {
-          console.error("Error updating form data", error);
-        }
+        // try {
+        //   const reader1 = new FileReader();
+        //   const reader2 = new FileReader();
+        //   reader1.readAsDataURL(data.frontDocumentImage[0]);
+        //   reader2.readAsDataURL(data.backDocumentImage[0]);
+        //   reader1.onload = async () => {
+        //     reader2.onload = async () => {
+        //       await fetch("/api/order", {
+        //         method: "PUT",
+        //         headers: {
+        //           "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify({
+        //           id: getApplicationId(),
+        //           residenceMedia: {
+        //             frontDocumentImage: reader1.result,
+        //             backDocumentImage: reader2.result,
+        //           }
+        //         }),
+        //       });
+        //       updateFormData({ documentMedia: {
+        //         frontDocumentImage: reader1.result,
+        //         backDocumentImage: reader2.result,
+        //       } }, "residence");
+        //       gotoNext(2);
+        //     };
+        //   };
+        // } catch (error) {
+        //   console.error("Error updating form data", error);
+        // }
+        gotoNext(2);
       }
     },
     [isValid]

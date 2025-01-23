@@ -77,28 +77,30 @@ export const DocumentMediaDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(
     async (data: IncomeMediaFormData) => {
       if (isValid) {
-        try {
-          const reader = new FileReader();
-          const incomeDocument = data.incomeDocument[0];
-          reader.readAsDataURL(incomeDocument);
-          reader.onload = async () => {
-            await fetch("/api/order", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                id: getApplicationId(),
-                ...data,
-                incomeDocument: reader.result,
-              }),
-            });
-            updateFormData({ incomeMedia: { ...data, incomeDocument: reader.result }}, "income");
-            gotoNext(2);
-          };
-        } catch (error) {
-          console.error("Error updating form data", error); 
-        }
+        // try {
+        //   const reader = new FileReader();
+        //   const incomeDocument = data.incomeDocument[0];
+        //   reader.readAsDataURL(incomeDocument);
+        //   reader.onload = async () => {
+        //     await fetch("/api/order", {
+        //       method: "PUT",
+        //       headers: {
+        //         "Content-Type": "application/json",
+        //       },
+        //       body: JSON.stringify({
+        //         id: getApplicationId(),
+        //         ...data,
+        //         incomeDocument: reader.result,
+        //       }),
+        //     });
+        //     updateFormData({ incomeMedia: { ...data, incomeDocument: reader.result }}, "income");
+        //     gotoNext(2);
+        //   };
+        // } catch (error) {
+        //   console.error("Error updating form data", error); 
+        // }
+        updateFormData({ incomeMedia: data}, "income");
+        gotoNext(2);
       }
     },
     [isValid],

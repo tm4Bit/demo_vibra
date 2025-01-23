@@ -79,19 +79,21 @@ export const IncomeInformationDialog: React.FC = () => {
   const handleContinue = useCallback(
     async (data: IncomeInformationFormData) => {
       if (isValid) {
-        try {
-          await fetch("/api/order", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ id: getApplicationId(), incomeInfo: data }),
-          });
-          updateFormData({ incomeInfo: data }, "income");
-          router.push("selfie");
-        } catch (error) {
-          console.error(error);
-        }
+        // try {
+        //   await fetch("/api/order", {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({ id: getApplicationId(), incomeInfo: data }),
+        //   });
+        //   updateFormData({ incomeInfo: data }, "income");
+        //   router.push("selfie");
+        // } catch (error) {
+        //   console.error(error);
+        // }
+        updateFormData({ incomeInfo: data }, "income");
+        router.push("selfie");
       }
     },
     [isValid]

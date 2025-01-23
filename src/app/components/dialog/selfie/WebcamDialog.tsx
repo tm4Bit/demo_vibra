@@ -32,21 +32,21 @@ export const WebcamDialog: React.FC = () => {
   }, []);
 
   const handleContinue = useCallback(async () => {
-    console.log("image: ", image);
-    if (!image) {
-      console.error("No image to submit");
-      return;
-    }
-    await fetch("/api/order", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: getApplicationId(),
-        selfie: { id: getApplicationId(), selfieMedia: image },
-      }),
-    });
+    // console.log("image: ", image);
+    // if (!image) {
+    //   console.error("No image to submit");
+    //   return;
+    // }
+    // await fetch("/api/order", {
+    //   method: "PUT",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     id: getApplicationId(),
+    //     selfie: { id: getApplicationId(), selfieMedia: image },
+    //   }),
+    // });
     console.log("Form: ", JSON.stringify(formData, null, 2));
   }, []);
 

@@ -40,22 +40,24 @@ export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
   const handleContinue = useCallback(
     async (data: DigitalInfoFormData) => {
       if (isValid) {
-        try {
-          await fetch("/api/order", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              id: getApplicationId(),
-              ...data
-            }),
-          });
-          updateFormData({ digitalInfo: data }, "personal");
-          gotoNext(2);
-        } catch (error) {
-          console.error("Error creating digital information:", error);
-        }
+        // try {
+        //   await fetch("/api/order", {
+        //     method: "PUT",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify({
+        //       id: getApplicationId(),
+        //       ...data
+        //     }),
+        //   });
+        //   updateFormData({ digitalInfo: data }, "personal");
+        //   gotoNext(2);
+        // } catch (error) {
+        //   console.error("Error creating digital information:", error);
+        // }
+        updateFormData({ digitalInfo: data }, "personal");
+        gotoNext(2);
       }
     },
     [isValid]
