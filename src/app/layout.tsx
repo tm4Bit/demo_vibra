@@ -30,6 +30,7 @@ const PetrobrasSans = localFont({
   ],
   variable: "--font-petrobras-sans",
 });
+export const runtime = "edge";
 
 export const metadata: Metadata = {
   title: "Vibra BB",
