@@ -2,8 +2,8 @@
   "name": "next_app",
   "version": "0.1.0",
   "private": true,
-  "engine": {
-    "node": "20.x"
+  "engines": {
+    "node": "20.15.1"
   },
   "scripts": {
     "dev": "next dev --turbopack",
