@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import Lead from '../../models/lead';
 import sequelize from '../../models/index';
 
+export const runtime = "edge";
+
 (async () => {
   try {
     await sequelize.authenticate();

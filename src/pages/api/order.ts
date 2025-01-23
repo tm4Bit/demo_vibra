@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import sequelize from "@/models";
 import Order from "@/models/order";
 
+export const runtime = "edge";
+
 (async () => {
   try {
     await sequelize.authenticate();
