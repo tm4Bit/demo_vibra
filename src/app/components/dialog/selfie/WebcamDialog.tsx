@@ -13,14 +13,14 @@ import styles from "@/app/styles/components/dialog/styles.module.css";
 export const WebcamDialog: React.FC = () => {
   const webcamRef = useRef<Webcam>(null);
   const [image, setImage] = useState<string | null>(null);
-  const { formData, updateFormData } = useFormContext();
+  const { formData, updateFormData, getApplicationId } = useFormContext();
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc !== undefined) {
       setImage(imageSrc);
       if (imageSrc) {
-        updateFormData({ selfie: imageSrc }, "selfie");
+        updateFormData({ selfieMedia: imageSrc }, "selfie");
       } else {
         console.error("imageSrc is null or undefined");
       }
@@ -31,8 +31,22 @@ export const WebcamDialog: React.FC = () => {
     setImage(null);
   }, []);
 
-  const handleContinue = useCallback(() => {
-    // TODO: Meke all the api calls here and navigate to Success page
+  const handleContinue = useCallback(async () => {
+    console.log("image: ", image);
+    if (!image) {
+      console.error("No image to submit");
+      return;
+    }
+    await fetch("/api/order", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: getApplicationId(),
+        selfie: { id: getApplicationId(), selfieMedia: image },
+      }),
+    });
     console.log("Form: ", JSON.stringify(formData, null, 2));
   }, []);
 

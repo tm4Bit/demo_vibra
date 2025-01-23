@@ -38,7 +38,7 @@ const ResidenceInfoFormSchema = z.object({
 export type ResidenceInfoFormData = z.infer<typeof ResidenceInfoFormSchema>;
 
 export const ResidenceInformationDialog: React.FC = () => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const router = useRouter();
   const {
     register,
@@ -54,10 +54,21 @@ export const ResidenceInformationDialog: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = useCallback(
-    (data: ResidenceInfoFormData) => {
+    async (data: ResidenceInfoFormData) => {
       if (isValid) {
-        updateFormData({ residenceInfo: data }, "residence");
-        router.push("renda");
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: getApplicationId(), residenceInfo: data }),
+          });
+          updateFormData({ residenceInfo: data }, "residence");
+          router.push("renda");
+        } catch (error) {
+          console.error("Error updating form data", error);
+        }
       }
     },
     [isValid],

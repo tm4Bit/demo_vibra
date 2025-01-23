@@ -43,7 +43,7 @@ const AdditionalInfoFormSchema = z.object({
 export type AdditionalInfoFormData = z.infer<typeof AdditionalInfoFormSchema>;
 
 export const AdditionalInformationDialog: React.FC = () => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -54,11 +54,21 @@ export const AdditionalInformationDialog: React.FC = () => {
   const router = useRouter();
 
   const handleContinue = useCallback(
-    (data: AdditionalInfoFormData) => {
-      // NOTE: Make all the requests inside if statement
+    async (data: AdditionalInfoFormData) => {
       if (isValid) {
-        updateFormData({ additionalInfo: data }, "personal");
-        router.push("identidade");
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: getApplicationId(), ...data }),
+          });
+          updateFormData({ additionalInfo: data }, "personal");
+          router.push("identidade");
+        } catch (error) {
+          console.error("Error creating additional information:", error);
+        }
       }
     },
     [isValid]

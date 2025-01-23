@@ -57,7 +57,7 @@ const PersonalInfoFormSchema = z.object({
 export type PersonalInfoFormData = z.infer<typeof PersonalInfoFormSchema>;
 
 export const PersonalInformationDialog: React.FC<Props> = ({ gotoNext }) => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -67,11 +67,21 @@ export const PersonalInformationDialog: React.FC<Props> = ({ gotoNext }) => {
   });
 
   const handleContinue = useCallback(
-    (data: PersonalInfoFormData) => {
+    async (data: PersonalInfoFormData) => {
       if (isValid) {
-        console.log(JSON.stringify(data, null, 2));
-        updateFormData({ personalInfo: data }, "personal");
-        gotoNext(1);
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: getApplicationId(), ...data }),
+          });
+          updateFormData({ personalInfo: data }, "personal");
+          gotoNext(1);
+        } catch (error) {
+          console.error("Error creating personal info:", error);
+        }
       }
     },
     [isValid]

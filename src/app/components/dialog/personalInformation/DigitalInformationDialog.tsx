@@ -28,7 +28,7 @@ const DigitalInfoFormSchema = z.object({
 export type DigitalInfoFormData = z.infer<typeof DigitalInfoFormSchema>;
 
 export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -38,10 +38,24 @@ export const DigitalInfomationDialog: React.FC<Props> = ({ gotoNext }) => {
   });
 
   const handleContinue = useCallback(
-    (data: DigitalInfoFormData) => {
+    async (data: DigitalInfoFormData) => {
       if (isValid) {
-        updateFormData({ digitalInfo: data }, "personal");
-        gotoNext(2);
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: getApplicationId(),
+              ...data
+            }),
+          });
+          updateFormData({ digitalInfo: data }, "personal");
+          gotoNext(2);
+        } catch (error) {
+          console.error("Error creating digital information:", error);
+        }
       }
     },
     [isValid]

@@ -8,8 +8,12 @@ import { useFormContext } from "@/app/hooks/useFormContext";
 
 import { CustomDialog } from "../../dialog/Dialog";
 import { InputError } from "../../InputError";
+import data from "@/models/formData.json";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
+
+// This is a workaround to avoid TS error when importing JSON files
+const professions = data.professions as [string, ...string[]]; 
 
 const IncomeInformationSchema = z.object({
   incomeEmissionDate: z
@@ -39,13 +43,7 @@ const IncomeInformationSchema = z.object({
       }
     ),
   profession: z.enum(
-    [
-      "Agente político",
-      "Aposentado ou pensionista",
-      "Aprendiz",
-      "Atividade sem remuneração",
-      "Agrônomo",
-    ],
+    professions,
     {
       errorMap: (issue, ctx) => {
         if (issue.code === "invalid_enum_value")
@@ -69,7 +67,7 @@ const IncomeInformationSchema = z.object({
 export type IncomeInformationFormData = z.infer<typeof IncomeInformationSchema>;
 
 export const IncomeInformationDialog: React.FC = () => {
-  const { formData, updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -79,12 +77,21 @@ export const IncomeInformationDialog: React.FC = () => {
   });
   const router = useRouter();
   const handleContinue = useCallback(
-    (data: IncomeInformationFormData) => {
-      // NOTE: Validate form and save in localstorage
-      // NOTE: Process form information
+    async (data: IncomeInformationFormData) => {
       if (isValid) {
-        updateFormData({ incomeInfo: data }, "income");
-        router.push("selfie");
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: getApplicationId(), incomeInfo: data }),
+          });
+          updateFormData({ incomeInfo: data }, "income");
+          router.push("selfie");
+        } catch (error) {
+          console.error(error);
+        }
       }
     },
     [isValid]
@@ -109,15 +116,11 @@ export const IncomeInformationDialog: React.FC = () => {
           <label>Qual é a sua profissão?</label>
           <select {...register("profession")}>
             <option>Clique e escolha </option>
-            <option value="Agente político">Agente político</option>
-            <option value="Aposentado ou pensionista">
-              Aposentado ou pensionista
-            </option>
-            <option value="Aprendiz">Aprendiz</option>
-            <option value="Atividade sem remuneração">
-              Atividade sem remuneração
-            </option>
-            <option value="Agrônomo">Agrônomo</option>
+            {professions.map((profession) => (
+              <option key={profession} value={profession}>
+                {profession}
+              </option>
+            ))}
           </select>
           <InputError message={errors.profession?.message} />
         </div>

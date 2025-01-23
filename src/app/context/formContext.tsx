@@ -18,6 +18,14 @@ import { IncomeInformationFormData } from "../components/dialog/incomeInformatio
 import { IncomeMediaFormData } from "../components/dialog/incomeInformation/DocumentMediaDialog";
 
 interface FormData {
+  declaration?: {
+    bornInBrasil: boolean;
+    taxDomicile: boolean;
+    responsibleForActs: boolean;
+    politicallyExposedPerson: boolean;
+    authorizeSCRConsultation: boolean;
+    shareData: boolean;
+  };
   personal?: {
     personalInfo?: PersonalInfoFormData;
     digitalInfo?: DigitalInfoFormData;
@@ -44,15 +52,18 @@ export interface FormContextType {
   formData: FormData;
   updateFormData: (
     newData: any,
-    key: "personal" | "identity" | "residence" | "income" | "selfie",
+    key: "declaration" | "personal" | "identity" | "residence" | "income" | "selfie",
   ) => void;
   deleteFormData: () => void;
+  saveApplicationId: (id: number) => void;
+  getApplicationId: () => number | undefined;
 }
 
 const FormContext = createContext({} as FormContextType);
 
 const FormProvider = ({ children }: { children: React.ReactNode }) => {
   const [formData, setFormData] = useState<FormData>({});
+  const [applicationId, setApplicationId] = useState<number | undefined>();
 
   // load data from localStorage on start
   useEffect(() => {
@@ -65,7 +76,8 @@ const FormProvider = ({ children }: { children: React.ReactNode }) => {
   // save data to localStorage whenever vibra_bb@formData is updated
   useEffect(() => {
     localStorage.setItem("vibra_bb@formData", JSON.stringify(formData));
-  }, [formData]);
+    localStorage.setItem("vibra_bb@applicationId", JSON.stringify(applicationId));
+  }, [formData, applicationId]);
 
   const _getLocalStorage = (): FormData | null => {
     const storedData = localStorage.getItem("vibra_bb@formData");
@@ -74,7 +86,7 @@ const FormProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateFormData = (
     newData: any,
-    key: "personal" | "identity" | "residence" | "income" | "selfie",
+    key: "declaration" | "personal" | "identity" | "residence" | "income" | "selfie",
   ) => {
     const localStorage = _getLocalStorage();
     if (localStorage) {
@@ -95,8 +107,16 @@ const FormProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("vibra_bb@formData");
   };
 
+  const saveApplicationId = (id: number) => {
+    setApplicationId(id);
+  }
+
+  const getApplicationId = () => {
+    return applicationId;
+  }
+
   return (
-    <FormContext.Provider value={{ formData, updateFormData, deleteFormData }}>
+    <FormContext.Provider value={{ formData, updateFormData, deleteFormData, saveApplicationId, getApplicationId }}>
       {children}
     </FormContext.Provider>
   );

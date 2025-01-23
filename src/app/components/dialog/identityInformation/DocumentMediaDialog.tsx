@@ -45,7 +45,7 @@ const IdentityMediaSchema = z.object({
 export type IdentityMediaFormData = z.infer<typeof IdentityMediaSchema>;
 
 export const DocumentMediaDialog: React.FC = () => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -56,11 +56,41 @@ export const DocumentMediaDialog: React.FC = () => {
   const router = useRouter();
 
   const handleContinue = useCallback(
-    (data: IdentityMediaFormData) => {
-      // NOTE: Validate form and save in localstorage
+    async (data: IdentityMediaFormData) => {
       if (isValid) {
-        updateFormData({ documentMedia: data }, "identity");
-        router.push("residencia");
+        try {
+          const docFront = data.docFront[0];
+          const docBack = data.docBack[0];
+
+          const readerFront = new FileReader();
+          const readerBack = new FileReader();
+
+          readerFront.readAsDataURL(docFront);
+          readerBack.readAsDataURL(docBack);
+
+          readerFront.onload = async () => {
+            const docFrontBase64 = readerFront.result?.toString();
+            readerBack.onload = async () => {
+              const docBackBase64 = readerBack.result?.toString();
+              updateFormData(
+                { documentMedia: { docBack: docBackBase64, docFront: docFrontBase64 } },
+                "identity"
+              );
+
+              await fetch("/api/order", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: getApplicationId(), docFront: docFrontBase64, docBack: docBackBase64 }),
+              });
+
+              router.push("residencia");
+            };
+          };
+        } catch (error) {
+          console.error("Error creating identity information.", error);
+        }
       }
     },
     [isValid]

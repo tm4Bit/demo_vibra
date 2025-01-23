@@ -7,8 +7,12 @@ import { useFormContext } from "@/app/hooks/useFormContext";
 
 import { CustomDialog } from "../../dialog/Dialog";
 import { InputError } from "../../InputError";
+import data from "@/models/formData.json";
 
 import styles from "@/app/styles/components/dialog/styles.module.css";
+
+// This is a workaround to avoid TS error when importing JSON files
+const issuingBodyOptions = data.issuingBody as [string, ...string[]];
 
 interface Props {
   gotoNext: (n: number) => void;
@@ -31,7 +35,7 @@ const IdentityInfoFormSchema = z.object({
       const selectedDate = new Date(date);
       return selectedDate <= today;
     }, "Data inválida."),
-  issuingBody: z.enum(["SSP", "DETRAN", "DGPC", "DIC", "GEJSP", "IFP"], {
+  issuingBody: z.enum(issuingBodyOptions, {
     errorMap: (issue: z.ZodIssueOptionalMessage, _ctx: z.ErrorMapCtx) => {
       if (issue.code === "invalid_enum_value")
         return { message: "Opção inválida." };
@@ -81,7 +85,7 @@ const IdentityInfoFormSchema = z.object({
 export type IdentityInfoFormData = z.infer<typeof IdentityInfoFormSchema>;
 
 export const DocumentInformationDialog: React.FC<Props> = ({ gotoNext }) => {
-  const { updateFormData } = useFormContext();
+  const { updateFormData, getApplicationId } = useFormContext();
   const {
     register,
     handleSubmit,
@@ -90,11 +94,21 @@ export const DocumentInformationDialog: React.FC<Props> = ({ gotoNext }) => {
     resolver: zodResolver(IdentityInfoFormSchema),
   });
   const handleContinue = useCallback(
-    (data: IdentityInfoFormData) => {
-      // NOTE: Validate form and save in localstorage
+    async (data: IdentityInfoFormData) => {
       if (isValid) {
-        updateFormData({ documentInfo: data }, "identity");
-        gotoNext(1);
+        try {
+          await fetch("/api/order", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: getApplicationId(), ...data }),
+          });
+          updateFormData({ documentInfo: data }, "identity");
+          gotoNext(1);
+        } catch (error) {
+          console.error("Error creating identity information.", error);
+        }
       }
     },
     [isValid]
@@ -137,12 +151,11 @@ export const DocumentInformationDialog: React.FC<Props> = ({ gotoNext }) => {
             <label>Orgão emissor</label>
             <select {...register("issuingBody")}>
               <option value="">Clique e escolha</option>
-              <option value="SSP">SSP</option>
-              <option value="DETRAN">DETRAN</option>
-              <option value="DGPC">DGPC</option>
-              <option value="DIC">DIC</option>
-              <option value="GEJSP">GEJSP</option>
-              <option value="IFP">IFP</option>
+              {issuingBodyOptions.map((body) => (
+                <option key={body} value={body}>
+                  {body}
+                </option>
+              ))}
             </select>
             <InputError message={errors.issuingBody?.message} />
           </div>
